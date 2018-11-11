@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bijan Seyednasrollah" />
 
-<meta name="date" content="2018-10-31" />
+<meta name="date" content="2018-11-11" />
 
 <title>PhenoCam API and Data Fusion</title>
 
@@ -70,28 +70,34 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">PhenoCam API and Data Fusion</h1>
 <h4 class="author"><em>Bijan Seyednasrollah</em></h4>
-<h4 class="date"><em>2018-10-31</em></h4>
+<h4 class="date"><em>2018-11-11</em></h4>
 
 
 
-<p>This R package is an effort to simplify data wrangling steps including downloading site data and metadata.</p>
-<p>Each PhenoCam site has specific metadata including but not limited to how the site is set-up and where it is located, what vegetaion type is visible from the camera, and its climate regime. Each PhenoCam may have none to several ROI’s per vegetation type. ‘phenocamapi’ is an interface to interact with the PhenoCam server to extract those data and process them in an R environment.</p>
+<p>This R package is an effort to simplify data wrangling steps for fusion of PhenoCam time-series and other datasets.</p>
+<p>Each PhenoCam site has specific metadata including but not limited to how a site is set up and where it is located, what vegetation type is visible from the camera, and its climate regime. Each PhenoCam may have none to several ROI’s per vegetation type. <code>phenocamapi</code> is an interface to interact with the PhenoCam server to extract those data and process them in an R environment.</p>
 <p>I begin with several examples for extracting Phenocam data directly from the server:</p>
 <ul>
 <li>Exploring the PhenoCam metadata</li>
-<li>Downloading Phenocam time-series data</li>
+<li>Downloading PhenoCam time-series data</li>
 <li>Merging with other time-series</li>
 </ul>
 <div id="exploriong-the-phenocam-metadata" class="section level2">
 <h2>Exploriong the PhenoCam metadata</h2>
-<p>We can obtain an up-to-date dataframe of the metadata of the entire PhenoCam network using the <code>get_phenos()</code> function. The returning value would be a data.table in order to simplify further data exploration.</p>
+<p>We can obtain an up-to-date <code>data.frame</code> of the metadata of the entire PhenoCam network using the <code>get_phenos()</code> function. The returning value would be a <code>data.table</code> in order to simplify further data exploration.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(data.table)
 <span class="kw">library</span>(phenocamapi)
 
 <span class="co"># obtaining the metadata as data.table</span>
 phenos &lt;-<span class="st"> </span><span class="kw">get_phenos</span>()</code></pre></div>
-<p>or we can just list the sites with flux data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">phenofluxsites &lt;-<span class="st"> </span>phenos[flux_data<span class="op">==</span><span class="ot">TRUE</span><span class="op">&amp;!</span><span class="kw">is.na</span>(flux_sitenames), .(<span class="dt">PhenoCam=</span>site, <span class="dt">Flux=</span>flux_sitenames)]
+</div>
+<div id="filtering-the-dataset-using-attributes" class="section level2">
+<h2>Filtering the dataset using attributes</h2>
+<p>For example we can just list the sites that have flux tower:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># store sites with flux_data available</span>
+phenofluxsites &lt;-<span class="st"> </span>phenos[flux_data<span class="op">==</span><span class="ot">TRUE</span><span class="op">&amp;!</span><span class="kw">is.na</span>(flux_sitenames), .(<span class="dt">PhenoCam=</span>site, <span class="dt">Flux=</span>flux_sitenames)]
+
+<span class="co"># see the first few rows</span>
 <span class="kw">head</span>(phenofluxsites)
 <span class="co">#&gt;                PhenoCam   Flux</span>
 <span class="co">#&gt; 1:       alligatorriver US-NC4</span>
@@ -102,14 +108,24 @@ phenos &lt;-<span class="st"> </span><span class="kw">get_phenos</span>()</code>
 <span class="co">#&gt; 6:           austincary US-SP1</span>
 
 <span class="co">#list deciduous broadleaf sites with flux tower</span>
-DB.flux &lt;-<span class="st"> </span>phenos[flux_data<span class="op">==</span><span class="ot">TRUE</span><span class="op">&amp;</span>primary_veg_type<span class="op">==</span><span class="st">'DB'</span>, site]</code></pre></div>
+DB.flux &lt;-<span class="st"> </span>phenos[flux_data<span class="op">==</span><span class="ot">TRUE</span><span class="op">&amp;</span>primary_veg_type<span class="op">==</span><span class="st">'DB'</span>, site]
+
+<span class="co"># see the first few rows</span>
+<span class="kw">head</span>(DB.flux)
+<span class="co">#&gt; [1] &quot;alligatorriver&quot; &quot;bartlett&quot;       &quot;bartlettir&quot;     &quot;bbc3&quot;          </span>
+<span class="co">#&gt; [5] &quot;bbc4&quot;           &quot;bbc7&quot;</span></code></pre></div>
 </div>
-<div id="downloading-phenocam-timeseries-data" class="section level2">
-<h2>Downloading Phenocam timeseries data</h2>
+<div id="downloading-phenocam-time-series-data" class="section level2">
+<h2>Downloading PhenoCam time-series data</h2>
 <p>PhenoCam time-series are extracted time-series data obtained from ROI’s for a given site.</p>
-<p>To download the phenological time-series from the PhenoCam, we need to know the sitename, vegetation type and ROI ID. This information can be obtained from the <a href="https://phenocam.sr.unh.edu/webcam/">PhenoCam website</a> or using the <code>getrois()</code> function:</p>
+<p>To download the phenological time-series from the PhenoCam, we need to know the sitename, vegetation type and ROI ID. This information can be obtained from the <a href="https://phenocam.sr.unh.edu/webcam/">PhenoCam website</a> or using the <code>get_rois()</code> function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># obtaining the list of all the available ROI's on the PhenoCam server</span>
 rois &lt;-<span class="st"> </span><span class="kw">get_rois</span>()
+
+<span class="kw">head</span>(rois<span class="op">$</span>roi_name)
+<span class="co">#&gt; [1] &quot;alligatorriver_DB_1000&quot;   &quot;arbutuslake_DB_1000&quot;     </span>
+<span class="co">#&gt; [3] &quot;arbutuslakeinlet_DB_1000&quot; &quot;arbutuslakeinlet_EN_1000&quot;</span>
+<span class="co">#&gt; [5] &quot;arbutuslakeinlet_EN_2000&quot; &quot;archboldavir_AG_1000&quot;</span>
 
 <span class="kw">colnames</span>(rois)
 <span class="co">#&gt;  [1] &quot;roi_name&quot;          &quot;site&quot;              &quot;lat&quot;              </span>
@@ -117,10 +133,28 @@ rois &lt;-<span class="st"> </span><span class="kw">get_rois</span>()
 <span class="co">#&gt;  [7] &quot;description&quot;       &quot;first_date&quot;        &quot;last_date&quot;        </span>
 <span class="co">#&gt; [10] &quot;site_years&quot;        &quot;missing_data_pct&quot;  &quot;roi_page&quot;         </span>
 <span class="co">#&gt; [13] &quot;roi_stats_file&quot;    &quot;one_day_summary&quot;   &quot;three_day_summary&quot;</span>
-<span class="co">#&gt; [16] &quot;data_release&quot;</span></code></pre></div>
-<p>The <code>getphenoTS()</code> function can download a time-series and return the result as a <code>data.table</code>. For example, to obtain the time-series for <a href="https://phenocam.sr.unh.edu/data/archive/dukehw/ROI/dukehw_DB_1000.html">DB_1000</a> from the <strong><em>dukehw</em></strong> PhenoCam site:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-<span class="co"># to obtain the DB 1000  from dukehw</span>
+<span class="co">#&gt; [16] &quot;data_release&quot;</span>
+
+<span class="co"># list all the ROI's for dukehw</span>
+rois[site<span class="op">==</span><span class="st">'dukehw'</span>,]
+<span class="co">#&gt;          roi_name   site      lat       lon roitype sequence_number</span>
+<span class="co">#&gt; 1: dukehw_DB_1000 dukehw 35.97358 -79.10037      DB            1000</span>
+<span class="co">#&gt;                                      description first_date  last_date</span>
+<span class="co">#&gt; 1: canopy level DB forest at awesome Duke forest 2013-06-01 2018-11-10</span>
+<span class="co">#&gt;    site_years missing_data_pct</span>
+<span class="co">#&gt; 1:        5.2              4.0</span>
+<span class="co">#&gt;                                                                   roi_page</span>
+<span class="co">#&gt; 1: https://phenocam.sr.unh.edu/data/archive/dukehw/ROI/dukehw_DB_1000.html</span>
+<span class="co">#&gt;                                                                     roi_stats_file</span>
+<span class="co">#&gt; 1: https://phenocam.sr.unh.edu/data/archive/dukehw/ROI/dukehw_DB_1000_roistats.csv</span>
+<span class="co">#&gt;                                                                one_day_summary</span>
+<span class="co">#&gt; 1: https://phenocam.sr.unh.edu/data/archive/dukehw/ROI/dukehw_DB_1000_1day.csv</span>
+<span class="co">#&gt;                                                              three_day_summary</span>
+<span class="co">#&gt; 1: https://phenocam.sr.unh.edu/data/archive/dukehw/ROI/dukehw_DB_1000_3day.csv</span>
+<span class="co">#&gt;    data_release</span>
+<span class="co">#&gt; 1:          pre</span></code></pre></div>
+<p>The <code>get_pheno_ts()</code> function can download a time-series and return the result as a <code>data.table</code>. For example, to obtain the time-series for <a href="https://phenocam.sr.unh.edu/data/archive/dukehw/ROI/dukehw_DB_1000.html">DB_1000</a> from the <strong>dukehw</strong> PhenoCam site, we can run the following code:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># to obtain the DB 1000  from dukehw</span>
 dukehw_DB_<span class="dv">1000</span> &lt;-<span class="st"> </span><span class="kw">get_pheno_ts</span>(<span class="dt">site =</span> <span class="st">'dukehw'</span>, <span class="dt">vegType =</span> <span class="st">'DB'</span>, <span class="dt">roiID =</span> <span class="dv">1000</span>, <span class="dt">type =</span> <span class="st">'3day'</span>)
 
 <span class="kw">colnames</span>(dukehw_DB_<span class="dv">1000</span>)
@@ -138,7 +172,10 @@ dukehw_DB_<span class="dv">1000</span> &lt;-<span class="st"> </span><span class
 <span class="co">#&gt; [34] &quot;DOY&quot;                  &quot;YYYYMMDD&quot;</span>
 
 dukehw_DB_<span class="dv">1000</span>[,date<span class="op">:</span><span class="er">=</span><span class="kw">as.Date</span>(date)]
-<span class="co"># dukehw_DB_1000[,plot(date, gcc_90)]</span></code></pre></div>
+dukehw_DB_<span class="dv">1000</span>[,<span class="kw">plot</span>(date, gcc_<span class="dv">90</span>, <span class="dt">col =</span> <span class="st">'green'</span>, <span class="dt">type =</span> <span class="st">'b'</span>)]
+<span class="co">#&gt; NULL</span>
+<span class="kw">mtext</span>(<span class="st">'Duke Forest, Hardwood'</span>, <span class="dt">font =</span> <span class="dv">2</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 <div id="merge-with-other-time-series-such-as-flux-data" class="section level2">
 <h2>Merge with other time-series such as flux data</h2>
