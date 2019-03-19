@@ -15,7 +15,7 @@ dukeB <- phenots[phenots$date=='2017-03-27', 'midday_b']
 duke_middays <- get_midday_list('dukehw')
 duke_awb <- get_awb_table('dukehw')
 
-midday <- basename(duke_middays[1])
+midday <- basename(duke_middays[[1]])
 
 wb <- duke_awb$AWB[1]
 
