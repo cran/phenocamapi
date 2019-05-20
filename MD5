@@ -1,4 +1,4 @@
-d27fa1f2b6b56ce391f3fab5c34e3613 *DESCRIPTION
+92ec4af0b066a5f428916ef9fde0098d *DESCRIPTION
 645c1da30b46fcc79b274f4123cc1ca7 *LICENSE
 f2deace6b3d725ac7ea886743e0d2425 *NAMESPACE
 14fe94d4f854e2309f901d2f9a9526b5 *NEWS.md
@@ -14,10 +14,10 @@ a2a535da3622bf501387c586d9a8d485 *R/parse_phenocam_filenames.R
 c390dab40fffaba314c14512ba40304e *build/vignette.rds
 e885c6d64c62233b8a9309f1480e7773 *inst/doc/getting_started_phenocam_api.R
 80003136717d86851ef00975339e45d9 *inst/doc/getting_started_phenocam_api.Rmd
-6ea1d92b9c85ee7d0f52f95105f98d1e *inst/doc/getting_started_phenocam_api.html
+b1aad982aeb01ff526ecaa77cb57ccbe *inst/doc/getting_started_phenocam_api.html
 2bc68d3c890ea12cf4f13d859dd89eab *inst/doc/phenocam_data_fusion.R
 1f98ffb6e0bec9102f52e44410b0f531 *inst/doc/phenocam_data_fusion.Rmd
-050dd0f993c7daab4b0ab13007dbb96a *inst/doc/phenocam_data_fusion.html
+91e0da0d0107d22bcee5be35ff360481 *inst/doc/phenocam_data_fusion.html
 beecf88c7b0eca38bf4e337501c828af *inst/fluxnetrepo/FLX_US-Me2/FLX_US-Me2_FULLSET_DD.csv
 15aea5557d5f1e9e87cdf02ed8b4b6ac *man/download_midday_images.Rd
 bf4d3de3d16230cb95cc6e6b869704bb *man/get_awb_table.Rd
@@ -27,6 +27,6 @@ aa4039671800ed6fcbb5c34957341666 *man/get_pheno_ts.Rd
 6defecc0101d8a5c0e1e4744fe7b213c *man/get_rois.Rd
 b0a711b3e83992759b06bc7f1502c0b4 *man/parse_phenocam_filenames.Rd
 cc8f9ca94870203f3a7880180b5dc76a *tests/testthat.R
-a4fe2c43e6f7ade4d0dce52e81d3e227 *tests/testthat/testphenocamapi.R
+5e23784659434c7a99d0bc80e16102f0 *tests/testthat/testphenocamapi.R
 80003136717d86851ef00975339e45d9 *vignettes/getting_started_phenocam_api.Rmd
 1f98ffb6e0bec9102f52e44410b0f531 *vignettes/phenocam_data_fusion.Rmd
